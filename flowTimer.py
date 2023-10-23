@@ -17,6 +17,7 @@ class TimerApp(QWidget):
         
         self.radio_group = QButtonGroup(self)
         self.radio_to_offset = {}
+        self.headers_added = False
 
         self.last_set_time = QTime(0, 0)
 
@@ -91,18 +92,23 @@ class TimerApp(QWidget):
         self.timer.timeout.connect(self.update_timer)
         
         self.add_timer_row()
+        self.add_header_row()
         
     def add_timer_row(self, name='', offsets='', interval='', beeps=''):
+        # If header labels haven't been added yet
+        if not self.headers_added:
+            self.add_header_labels()
+            self.headers_added = True
+
         row_layout = QHBoxLayout()
 
         radio_button = QRadioButton(self)
-        # Inside add_timer_row function
-        
         radio_button.toggled.connect(self.radio_button_toggled)
         
         name_edit = QLineEdit(self)
         name_edit.setPlaceholderText("Name")
-        name_edit.setText(str(name))
+        if name != False:
+            name_edit.setText(str(name))
         
         offset_edit = QLineEdit(self)
         offset_edit.setPlaceholderText("Offsets")
@@ -112,7 +118,6 @@ class TimerApp(QWidget):
         self.radio_to_offset[radio_button] = offset_edit
         radio_button.toggled.connect(self.radio_button_toggled)
 
-        
         interval_edit = QLineEdit(self)
         interval_edit.setPlaceholderText("Interval")
         interval_edit.setText(interval)
@@ -133,8 +138,22 @@ class TimerApp(QWidget):
         row_layout.addWidget(delete_button)
 
         self.timer_rows_layout.addLayout(row_layout)
+
+    def add_header_labels(self):
+        header_layout = QHBoxLayout()
+
+        header_layout.addWidget(QLabel(""))  # For the radio button
+        header_layout.addWidget(QLabel("Name"))
+        header_layout.addWidget(QLabel("Offsets"))
+        header_layout.addWidget(QLabel("Interval"))
+        header_layout.addWidget(QLabel("Beeps"))
+        header_layout.addWidget(QLabel(""))  # For the delete button
+
+        self.timer_rows_layout.addLayout(header_layout)
         
     def delete_timer_row(self, row_layout):
+        if row_layout == self.timer_rows_layout.itemAt(0):
+            return
         # Remove widgets from row_layout
         for i in reversed(range(row_layout.count())):
             widget = row_layout.itemAt(i).widget()
@@ -181,11 +200,31 @@ class TimerApp(QWidget):
 
 
     def start_timer(self):
-        if self.time_left > QTime(0, 0):
+        # Check if the timer is currently active
+        if self.timer.isActive():
+            self.timer.stop()  # Stop the timer
+            self.time_left = self.last_set_time  # Reset to the last set time
+
+            # Update the label with the reset time
+            hours = self.time_left.hour()
+            minutes = self.time_left.minute()
+            seconds = self.time_left.second()
+            milliseconds = self.time_left.msec()
+
+            if hours == 0 and minutes < 60:
+                formatted_time = f"{minutes * 60 + seconds}.{milliseconds:03d}"
+            else:
+                formatted_time = self.time_left.toString("hh:mm:ss")
+
+            self.label.setText(formatted_time)
+            self.timer.start(1)
+
+        elif self.time_left > QTime(0, 0):
             print("Starting timer with time:", self.time_left.toString("hh:mm:ss.zzz"))
             self.timer.start(1)
         else:
-            print("Time left is zero. Please select a valid timer.")
+            print("INVALID TIME")
+
 
 
     def stop_timer(self):
@@ -298,7 +337,24 @@ class TimerApp(QWidget):
         with open(filename, 'r') as theme_file:
             self.setStyleSheet(theme_file.read())
 
+    def add_header_row(self):
+        header_layout = QHBoxLayout()
 
+        # Use a QLabel with an empty text for radio button placeholder
+        header_layout.addWidget(QLabel('', self))
+        
+        name_header = QLabel('Name', self)
+        offset_header = QLabel('Offsets', self)
+        interval_header = QLabel('Interval', self)
+        beeps_header = QLabel('Beeps', self)
+        
+        header_layout.addWidget(name_header)
+        header_layout.addWidget(offset_header)
+        header_layout.addWidget(interval_header)
+        header_layout.addWidget(beeps_header)
+        header_layout.addWidget(QLabel('', self))  # Placeholder for the delete button
+
+        self.timer_rows_layout.addLayout(header_layout)
 
 
 app = QApplication(sys.argv)

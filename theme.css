@@ -1,6 +1,6 @@
 QWidget {
     background-color: #282a36;  /* main background color */
-    color: #f8f8f2;            /* text color */
+    color: #fbebff;          /* text color */
 }
 QPushButton {
     background-color: #a77fe9; /* pastel green */
@@ -14,7 +14,7 @@ QPushButton:pressed {
     background-color: #bb91e2; /* slightly darker pastel green */
 }
 QLabel, QRadioButton, QLineEdit {
-    color: #f8f8f2;            /* text color */
+    color: #fbebff; /* This is the text color you've set for other widgets */
 }
 QRadioButton::indicator {
     width: 16px;
