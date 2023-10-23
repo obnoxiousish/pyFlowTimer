@@ -7,4 +7,4 @@ As of commiting this, no beep or alert has been introduced to actually time your
 Plan to add it soon, if this is still here I maybe forgot to remove it or didn't actually do it.
 
 Screenshot:
-    ![alt text](https://obnoxiousish.github.io/pyFlowTimer/gui_menu.png)
+    ![gui menu](https://obnoxiousish.github.io/pyFlowTimer/gui_menu.png)
