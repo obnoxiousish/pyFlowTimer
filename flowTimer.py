@@ -24,17 +24,25 @@ class TimerApp(QWidget):
         self.load_last_file()
         self.apply_theme_from_file("theme.css")
 
-
     def init_ui(self):
         self.setWindowTitle("Python FlowTimer ~ obby")
-        self.resize(502, 260)
+        self.resize(1079, 338)
 
         self.main_layout = QVBoxLayout()
 
+        self.timer_h_layout = QHBoxLayout()
+        self.timer_h_layout.addStretch(1)  # Adds a stretch on the left side
         self.label = QLabel('00:00', self)
-        self.label.setFont(QFont('Arial', 32))
-        self.main_layout.addWidget(self.label)
+        self.label.setFont(QFont('Arial', 72))  # Increase the font size
+        self.timer_h_layout.addWidget(self.label)  # Adds the label to the horizontal layout
+        self.timer_h_layout.addStretch(1)  
         
+        self.label.setObjectName("timerLabel")
+        
+        self.main_layout.addStretch(1)  # Adds a stretch above the label layout
+        self.main_layout.addLayout(self.timer_h_layout)  # Adds the horizontal layout of the label to the main layout
+        self.main_layout.addStretch(1)  # Adds a stretch below the label layout
+
         self.mid_layout = QHBoxLayout()
         self.button_layout = QVBoxLayout()
 

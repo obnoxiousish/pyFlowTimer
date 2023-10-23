@@ -31,3 +31,7 @@ QLineEdit {
     padding: 2px;
     border-radius: 3px;
 }
+
+#timerLabel {
+    color: #c48fe4;
+}
