@@ -5,6 +5,8 @@ import os
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import QTimer, QTime
 from PyQt6.QtGui import QFont
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QThread
+from beepy import beep
 
 class TimerApp(QWidget):
     def __init__(self):
@@ -18,8 +20,14 @@ class TimerApp(QWidget):
         self.radio_group = QButtonGroup(self)
         self.radio_to_offset = {}
         self.headers_added = False
+        self.beep_times = []
 
         self.last_set_time = QTime(0, 0)
+        
+        self.beep_thread = QThread()
+        self.beep_worker = BeepWorker()
+        self.beep_worker.moveToThread(self.beep_thread)
+        self.beep_worker.finished.connect(self.beep_thread.quit)
 
         self.init_ui()
         self.load_last_file()
@@ -183,6 +191,7 @@ class TimerApp(QWidget):
 
     def update_timer(self):
         self.time_left = self.time_left.addMSecs(-1)  # Subtract 1000 milliseconds (1 second)
+        
         hours = self.time_left.hour()
         minutes = self.time_left.minute()
         seconds = self.time_left.second()
@@ -195,9 +204,13 @@ class TimerApp(QWidget):
         
         self.label.setText(formatted_time)
         
-        if self.time_left == QTime(0, 0):
-            self.timer.stop()
+        if self.time_left in self.beep_times:
+            self.play_beep()  # Play beep sound
+            self.beep_times.remove(self.time_left)  # Remove the beep time
 
+    def play_beep(self):
+        self.beep_thread.started.connect(self.beep_worker.do_work)
+        self.beep_thread.start()
 
     def start_timer(self):
         # Check if the timer is currently active
@@ -302,25 +315,41 @@ class TimerApp(QWidget):
     
     def update_timer_from_offsets(self, offset_edit_widget):
         offsets = offset_edit_widget.text()
+        self.beep_times.clear()
+
         try:
-            # Parse the string to get the last number.
-            last_offset = int(offsets.split("/")[-1])
-            
-            # Convert the last number to minutes, seconds, and milliseconds.
-            minutes = last_offset // 60000
-            remainder = last_offset % 60000
+            # Convert all offsets into integers
+            offset_values = [int(offset_str) for offset_str in offsets.split('/')]
+
+            # Find the last offset
+            last_offset_value = offset_values[-1]
+
+            # Calculate the beep times based on the difference between the last offset and each offset
+            for offset in offset_values:  # Excluding the last offset
+                beep_time_value = last_offset_value - offset
+                minutes = beep_time_value // 60000
+                remainder = beep_time_value % 60000
+                seconds = remainder // 1000
+                milliseconds = remainder % 1000
+                print(f"Beep time: {minutes}:{seconds}.{milliseconds:03d}")
+                self.beep_times.append(QTime(0, minutes, seconds, milliseconds))
+
+            # Sort beep times
+            self.beep_times.sort()
+
+            # Use the last offset to set the timer as before
+            minutes = last_offset_value // 60000
+            remainder = last_offset_value % 60000
             seconds = remainder // 1000
             milliseconds = remainder % 1000
-            
-            # Update self.time_left and also store it as the last set time
+
             self.time_left = QTime(0, minutes, seconds, milliseconds)
             self.last_set_time = self.time_left
-            
-            formatted_time = f"{minutes * 60 + seconds}.{milliseconds:03d}"  # Format milliseconds with zero-padding
+
+            formatted_time = f"{minutes * 60 + seconds}.{milliseconds:03d}"
             self.label.setText(formatted_time)
         except Exception as e:
             print("Error updating timer:", e)
-
 
             
     def radio_button_toggled(self, checked):
@@ -331,6 +360,8 @@ class TimerApp(QWidget):
             if offset_edit:
                 print("Updating timer from offset:", offset_edit.text())  # Debug print
                 self.update_timer_from_offsets(offset_edit)
+        else:
+            pass
 
     def apply_theme_from_file(self, filename):
         """Apply styles from a given CSS file."""
@@ -355,6 +386,15 @@ class TimerApp(QWidget):
         header_layout.addWidget(QLabel('', self))  # Placeholder for the delete button
 
         self.timer_rows_layout.addLayout(header_layout)
+
+class BeepWorker(QObject):
+    started = pyqtSignal()
+    finished = pyqtSignal()
+
+    @pyqtSlot()
+    def do_work(self):
+        beep()  # Call the beep function
+        self.finished.emit()
 
 
 app = QApplication(sys.argv)
