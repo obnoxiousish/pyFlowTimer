@@ -2,7 +2,6 @@ import sys
 import json
 import os
 
-from functools import partial
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import QTimer, QTime
 from PyQt6.QtGui import QFont
