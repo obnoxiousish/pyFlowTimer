@@ -1,0 +1,33 @@
+QWidget {
+    background-color: #282a36;  /* main background color */
+    color: #f8f8f2;            /* text color */
+}
+QPushButton {
+    background-color: #a77fe9; /* pastel green */
+    border: none;
+    padding: 5px 10px;
+}
+QPushButton:hover {
+    background-color: #c48fe4; /* slightly lighter pastel green */
+}
+QPushButton:pressed {
+    background-color: #bb91e2; /* slightly darker pastel green */
+}
+QLabel, QRadioButton, QLineEdit {
+    color: #f8f8f2;            /* text color */
+}
+QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background-color: #44475a; /* circle background color */
+}
+QRadioButton::indicator:checked {
+    background-color: #cc7eeb; /* pastel blue when checked */
+}
+QLineEdit {
+    background-color: #44475a; /* text input background color */
+    border: 1px solid #666;   /* border color for text inputs */
+    padding: 2px;
+    border-radius: 3px;
+}
