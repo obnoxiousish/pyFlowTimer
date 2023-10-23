@@ -8,7 +8,7 @@ QPushButton {
     padding: 5px 10px;
 }
 QPushButton:hover {
-    background-color: #c48fe4; /* slightly lighter pastel green */
+    background-color: #a77fe9; /* slightly lighter pastel green */
 }
 QPushButton:pressed {
     background-color: #bb91e2; /* slightly darker pastel green */
@@ -23,7 +23,7 @@ QRadioButton::indicator {
     background-color: #44475a; /* circle background color */
 }
 QRadioButton::indicator:checked {
-    background-color: #cc7eeb; /* pastel blue when checked */
+    background-color: #a77fe9; /* pastel blue when checked */
 }
 QLineEdit {
     background-color: #44475a; /* text input background color */
@@ -33,5 +33,5 @@ QLineEdit {
 }
 
 #timerLabel {
-    color: #c48fe4;
+    color: #a77fe9;
 }
